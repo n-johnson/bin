@@ -1,0 +1,20 @@
+#!/bin/bash
+## Description: Downloads and parses a SSL certificate for a provided hostname/address.
+## Author: Nathan Johnson <.*@njohnson.me>
+## Date: 2015-10-26
+_ssl () {
+	local adr=$1
+	local _d
+        echo "Search: $adr"
+	_d=$(
+      echo -n \
+         | openssl s_client -connect "$adr":443 2>/dev/null \
+         | openssl x509 -noout -text 2>/dev/null \
+  )
+	echo "Certifificate Subject:"
+	echo "$_d" | grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn} 'Subject:'
+	echo "SNI:"
+	echo "$_d" | grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn} "DNS" | tr ',' '\n' | awk -F':' '{print $2}'
+}
+
+_ssl "$1"

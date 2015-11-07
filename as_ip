@@ -1,0 +1,26 @@
+#!/bin/bash
+
+_get() {
+  local as=$1;
+  local _d;
+  local ipv4;
+  local ipv6;
+  
+  _d=$(
+      curl -s 'https://stat.ripe.net/data/announced-prefixes/data.json?resource='"$as" \
+        | jq '.data.prefixes | .[] | .prefix ' \
+        | sort
+  );
+ 
+  ipv4=$(echo "$_d" | grep -v ':')
+  ipv6=$(echo "$_d" | grep ':')
+
+  echo "IPV4:"
+  echo "$ipv4"
+
+  echo "IPV6:"
+  echo "$ipv6"
+}
+
+_get "$1"
+

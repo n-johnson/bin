@@ -1,0 +1,22 @@
+#!/bin/bash
+## Description: Diffs origin/local versions of the current branch name if provided or else the current branch
+## Author: Nathan Johnson <.*@njohnson.me>
+## Date: 2015-11-04
+
+# gcb - Git current branch
+gcurb() {
+  git symbolic-ref HEAD | awk -F"/" '{print $3}'
+}
+
+# Diff input branch against origin of same name
+gdo() {
+  git diff origin/"$1".."$1"
+}
+
+gdoc() {
+  local current_branch=$(gcurb)
+
+  gdo "$current_branch"
+}
+
+gdoc "$1"

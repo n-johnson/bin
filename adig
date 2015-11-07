@@ -1,0 +1,22 @@
+#!/bin/bash
+## Description: Implements dig -t any since cloudflare stopped responding to type ANY queries
+## Author: Nathan Johnson <.*@njohnson.me>
+## Date: 2015-10-28
+
+_dig () {
+	local domain=$1
+	local type=$2
+	dig "$domain" -t "$type" | sed -n '/;; ANSWER SECTION/,/^$/p' | sed '1d' | sed '/^$/d'
+}
+
+adig () {
+	local domain=$1
+	local types
+	types=(A NS SOA WKS HINFO MX TXT AAAA LOC SRV CERT SSHFP IPSECKEY RRSIG NSEC DNSKEY TLSA HIP TYPE59 TYPE60 TYPE61 TYPE257 SPF) 
+	for t in "${types[@]}"
+	do
+		_dig "$domain" "$t"
+	done
+}
+
+adig "$1"

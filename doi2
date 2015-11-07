@@ -1,0 +1,25 @@
+#!/bin/bash
+
+initDocker() {
+  local _d1=0; local _d2=0;
+
+  which boot2docker >/dev/null
+    [ "$?" == 0 ] && _d1=1;
+
+  which docker-machine >/dev/null
+    [ "$?" == 0 ] && _d2=1;
+
+  if (( $_d1 == 1 )) && (( $_d2 == 1 )); then
+    echo "Multiple docker vms present. Please uninstall one";
+    return 1;
+  fi
+
+  (( $_d1 == 1 )) && eval "$(boot2docker shellinit)"
+  (( $_d1 == 2 )) && eval "$(docker-machine env dev)"
+
+  return 0;
+}
+
+docker version >/dev/null \
+  && { echo "Docker running!"; } \
+  || initDocker

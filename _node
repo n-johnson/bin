@@ -1,0 +1,4 @@
+#!/bin/bash
+
+#env node
+nvm exec 0.10.40 node "$1"

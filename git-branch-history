@@ -1,0 +1,9 @@
+#!/bin/bash
+## Description: Parses the git reflog to get an ordered list of the branches you've been on
+## Author: Nathan Johnson <.*@njohnson.me>
+## Date: 2015-10-30
+git-branch-history() {
+  git reflog | grep 'moving from' | awk -F"moving from " '{print $2}' | awk -F' to ' '{print $1, " - ",$2}' | less
+}
+
+git-branch-history "$1"

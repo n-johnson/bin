@@ -1,0 +1,18 @@
+#!/bin/bash
+openssl="/usr/local/opt/openssl/bin/openssl"
+_ssl () {
+	local adr=$1
+        local port=${2:-443}
+	local _d
+        echo "Search: $adr - $port"
+	_d=$(
+     echo -n | /usr/local/opt/openssl/bin/openssl s_client -servername "$adr" -connect "$adr":"$port" 2>/dev/null \
+         | /usr/local/opt/openssl/bin/openssl x509 -noout -text 2>/dev/null \
+  )
+	echo "Certifificate Subject:"
+	echo "$_d" | grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn} 'Subject:'
+	echo "SNI:"
+	echo "$_d" | grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn} "DNS" | tr ',' '\n' | awk -F':' '{print $2}'
+}
+
+_ssl "$1" "$2"

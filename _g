@@ -1,0 +1,6 @@
+#!/bin/bash
+## Description: Prints current branch name
+## Author: Nathan Johnson <.*@njohnson.me>
+## Date: 2015-11-06
+
+git symbolic-ref HEAD | awk -F"/" '{print $3}'

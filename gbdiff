@@ -1,0 +1,24 @@
+#!/bin/bash
+##
+## gbdiff: Git Branch Diff
+##   With pretty color!
+##   ie:  
+##     61cbb63 Nathan Johnson  Tue Dec 1 15:33:25 2015 -0800   Update managed account signup flags to match updated sprites
+##     ec0584d Nathan Johnson  Tue Dec 1 15:14:37 2015 -0800   Missing null check 
+
+gbdiff() { 
+  local path_diff='';
+
+  if [[ "$#" -eq 0 ]]; then
+    local current_branch=$(gcurb);
+    path_diff="dev..$current_branch"
+  elif [[ "$#" -eq 1 ]]; then
+    path_diff="dev..$1"
+  else
+    path_diff="$1..$2"
+  fi
+
+  git log "$path_diff" --no-merges --pretty=format:"%Cred%h%Creset%x09%an%x09%C(yellow)%ad%Cgreen%x09%s" --color
+}
+
+gbdiff "$@"

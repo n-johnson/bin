@@ -1,0 +1,5 @@
+#!/bin/bash
+
+. doi2
+
+docker run --rm=true -it ubuntu /bin/bash

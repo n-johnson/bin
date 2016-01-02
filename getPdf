@@ -1,0 +1,43 @@
+#!/bin/bash
+
+/Users/nathan/docs/.saved/getPdf "$@"
+
+
+## Source of above path
+# #!/bin/bash
+
+# DOCS_ROOT_PATH='/Users/nathan/docs/.saved'
+# urlHost="$DOCS_ROOT_PATH/urlHost"
+# urlPath="$DOCS_ROOT_PATH/urlPath"
+
+# getDirPath() {
+#   echo "$DOCS_ROOT_PATH/$1"
+# }
+
+# _safe_Mkdir() {
+#   local dir="$1"
+#   local path="$(getDirPath $dir)"
+
+#   if [[ "$dir" =~ ^[A-Za-z0-9.-]*$ ]]; then
+#     mkdir -p "$path"
+#     echo "$path"
+#   else
+#     echo "Refused to created dir: [$dir]"
+#     exit 1;
+#   fi
+# }
+
+# getPdf() {
+#   local url="$1";
+#   local url_host=$("$urlHost" "$url")
+#   local url_path=$("$urlHost" "$url")
+#   [ -z "$url_host" ] && exit 5;
+
+#   local actualPath=$(_safe_Mkdir $url_host)
+#   local savePath="$actualPath/$url_path_$(date +%s).pdf"
+
+#   echo "saving to: $savePath"
+#   wkhtmltopdf "$url" "$savePath"
+# }
+
+# getPdf "$1"

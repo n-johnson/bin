@@ -1,0 +1,56 @@
+#!/bin/bash
+
+COUNT=2
+
+fmt_geoip() {
+  xargs geoiplookup | xargs echo | awk -F':' '{print $3}' | awk -F',' '{print $1$2$3$4$5}'
+}
+
+process_shit() {
+  local filtered_mtr="$1"
+
+  echo "$filtered_mtr" | grep ' (' | while read line; do
+    geo=$(echo $line | awk -F'[(|)]' '{print $2}' | fmt_geoip )
+    echo "$line - $geo"
+  done
+
+  echo "$filtered_mtr" | grep -v ' (' | while read line; do
+    geo=$(echo $line | awk '{print $3}' | fmt_geoip )
+    echo "$line - $geo"
+  done
+}
+
+
+data=$(whois "$IP")
+
+getCIDR() {
+  echo "$1" | grep "CIDR" | awk '{print $2}' | awk -F'/' '{print $2, $0}' | sort -n | awk '{print $2}' | awk 1 ORS=', '
+}
+
+getOrg() {
+  echo "$1" | grep 'OrgName' | awk -F ':' '{print $2}' | awk 1 ORS=', ' | tr -s ' '
+}
+
+prettyWhois() {
+  local IP="$1"
+  local data=$(whois "$IP")
+  local CIDR=$(getCIDR "$data")
+  local ORG=$(getOrg "$data")
+
+  echo "IP: $IP"
+  echo "CIDR: $CIDR"
+  echo "Org: $ORG"
+}
+
+IP="$1"
+# sudo early because stealing the output of later sudo cmd
+
+sudo echo "" > /dev/null
+
+prettyWhois "$IP"
+geoiplookup "$IP"
+
+raw_mtr=$(sudo mtr "$IP" -wrby n -c "$COUNT")
+filtered_mtr=$(echo "$raw_mtr" | grep -v 'HOST:' | grep -v 'Start:')
+process_shit "$filtered_mtr" | sort -n
+

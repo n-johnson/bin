@@ -1,0 +1,9 @@
+#!/bin/bash
+
+out=`curl -w "%{time_total}\n" -o /dev/null -s "$1"` 
+if (($? > 1)); then
+  echo 0.000
+  exit 1
+else
+  echo "$out"
+fi

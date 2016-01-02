@@ -1,0 +1,20 @@
+#!/bin/bash
+
+IP="$1"
+
+data=$(whois "$IP")
+
+getCIDR() {
+  echo "$1" | grep "CIDR" | awk '{print $2}' | awk -F'/' '{print $2, $0}' | sort -n | awk '{print $2}' | awk 1 ORS=', '
+}
+
+getOrg() {
+  echo "$1" | grep 'OrgName' | awk -F ':' '{print $2}' | awk 1 ORS=', ' | tr -s ' '
+}
+
+CIDR=$(getCIDR "$data")
+ORG=$(getOrg "$data")
+
+echo "IP: $IP"
+echo "CIDR: $CIDR"
+echo "Org: $ORG"

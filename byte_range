@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# byte_range $start $end
+#   - Outputs the bytes between the starting and ending values from the stdin stream
+#
+#     - $start - Starting byte to display
+#     - $end   - Ending byte to display
+
+isInteger() {
+  local regex_numeric='^[0-9]+$'
+  [[ "$1" =~ $regex_numeric ]]
+}
+
+byteRange() {
+  local start="$1"
+  local length="$2"
+
+  tail -c +"$start" | head -c "$length"
+}
+
+checkInputs() {
+  local start="$1"
+  local end="$2"
+
+  if ! isInteger "$start" || ! isInteger "$end"; then
+    echo "Non-integer provided as input. Exiting"
+    exit 1
+  fi
+
+  if [ $start -ge $end ]; then
+    echo "Starting value must be less than ending value"
+    exit 1
+  fi
+}
+
+diff() { 
+  echo "$1 - $2" | bc
+}
+
+checkInputs "$1" "$2"
+
+START="$1"; END="$2"; LENGTH=$(diff "$END" "$START");
+
+cat - | byteRange "$START" "$LENGTH"

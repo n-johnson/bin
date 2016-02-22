@@ -2,4 +2,9 @@
 
 file=$1
 
-less "$HOME/docs/$file"
+if [ -n "$file" ]; then
+  less "$HOME/docs/$file"
+  exit 0
+else
+  ls -al "$HOME/docs"
+fi

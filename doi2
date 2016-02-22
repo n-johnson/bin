@@ -20,6 +20,8 @@ initDocker() {
   return 0;
 }
 
-docker version >/dev/null \
-  && { echo "Docker running!"; } \
-  || initDocker
+#docker version >/dev/null \
+#  && { echo "Docker running!"; } \
+#  || initDocker
+
+eval "$(boot2docker shellinit)"

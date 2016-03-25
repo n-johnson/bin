@@ -1,0 +1,3 @@
+#!/bin/bash
+
+stat -f "%Sm" -t "%s" "$1"

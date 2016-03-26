@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Same as map, however it prints the the argument before printing the resulting value
+
+
+fn="$1"
+
+if [ -z "$fn" ]; then
+  echo "map requires argument of function to map stdin against"
+  exit 1
+fi
+
+which "$fn" >/dev/null || { echo "Argument is not a valid function."; exit 1; }
+
+while read x; do
+  out=$("$fn" "$x")
+  echo "$x: $out" 
+done
+

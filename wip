@@ -1,0 +1,8 @@
+#!/bin/bash
+
+WIP_MAGIC='wip.auto' # Also in bin/rwip
+
+gam \
+  && git commit -m "$WIP_MAGIC" \
+  || echo "Failed to add all modified files. See error ^^"
+

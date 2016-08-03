@@ -1,0 +1,4 @@
+#!/bin/bash
+# gam = git add modified
+
+git status | grep 'modified:'| awk '{print $2}' | xargs git add

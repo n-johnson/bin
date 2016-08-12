@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# CUR_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+echo "current_dir cannot be called directly, it must be inlined."

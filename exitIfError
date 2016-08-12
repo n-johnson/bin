@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# "Cleaner" code for properly terminating a script with a relevant error message
+# Usage:
+#   some_cmd_that_may_fail
+#   exitIfError "$?" "Error message" || exit 1
+
+exit_code="$1"
+error_msg="$2"
+
+if [ "$exit_code" != 0 ]; then
+  print_error "$error_msg"
+  exit 1
+fi

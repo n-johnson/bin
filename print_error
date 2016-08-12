@@ -1,0 +1,6 @@
+#!/bin/bash
+
+CUR_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$CUR_DIR/lib/colors.sh"
+
+printf "${COLOR_RED}$1${COLOR_NC}\n" 1>&2;

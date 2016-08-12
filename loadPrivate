@@ -1,0 +1,30 @@
+#!/bin/bash
+# Loads a "private" value by keyname that is ignored from git as bin is a public repo.
+#   - Keys must be in the format /^[a-z_]+$/ and correspond to files in the private directory
+# 
+# Example Usage:
+#   JUMPBOX=$(loadPrivate prod_jumpbox)
+#   exitIfError "$?" "Failed to load private prod_jumpbox" || exit 1
+
+CUR_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+isSimpleText() {
+  [[ "$1" =~ ^[a-z_]+$ ]]
+}
+
+isPrivateFile() {
+  [ -f "$1" ]
+}
+
+loadPrivate() {
+  local input="$1"
+  local priv_file="$CUR_DIR/private/$input"
+  
+  if isSimpleText "$input" && isPrivateFile "$priv_file"; then
+    cat "$priv_file"
+  else
+    exit 1;
+  fi
+}
+
+loadPrivate "$1"

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# TODO: Use screen to keep the jumpbox ssh connection / mongo session in the same terminal & automatically connect to mongodb.
+# TODO: Automatic selection of services to connect to instead of manually editing the file
+
+LOCAL_PORT=9999
+
+JUMPBOX=$(loadPrivate prod_jumpbox)
+exitIfError "$?" "Failed to load private prod_jumpbox" || exit 1
+
+SERVICE=$(loadPrivate prod_service_primary)
+# SERVICE=$(loadPrivate prod_service_secondary)
+# SERVICE=$(loadPrivate prod_service_social)
+exitIfError "$?" "Failed to load private prod_service..." || exit 1
+
+CONN_STRING=$(loadPrivate prod_connect_string)
+exitIfError "$?" "Failed to load prod_connect_string" || exit 1
+
+echo "To connect, in a second terminal run:"
+echo "$CONN_STRING"
+
+ssh -L "$LOCAL_PORT:$SERVICE" "$JUMPBOX"

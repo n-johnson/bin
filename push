@@ -18,8 +18,10 @@ if [[ "$branch" == "dev" ]]; then
 elif [[ "$branch" == "master" ]]; then
   promptYes "Confirm pushing to master. [Y or N]"
 else
-  echo "Pushing to origin $branch in 2 seconds..."
-  sleep 2
+  echo "Pushing to origin $branch..."
+  sleep 0.5 # Small amount of time to cancel with ^C 
 fi
 
-git push origin "$branch"
+resp=$(git push origin "$branch" 2>&1)
+
+echo "$resp" | grep '[rejected]' && { promptYes "Force push?"; git push origin "$branch" --force; } || echo "$resp"

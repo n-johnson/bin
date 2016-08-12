@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+# To be run in an empty directory. Once a file is written to the directory, this will begin tailing the file.
+
+tail_it() {
+  file=`ls | tail -n 1`
+  echo "File: $file"
+  tail -f "$file"
+}
+
+tail_if_has_file() {
+  [ `ls | wc -l | tr -d ' '` -gt 0 ] && tail_it
+}
+
+while ! tail_if_has_file; do : ; done

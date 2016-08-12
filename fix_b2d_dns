@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# If boot2docker is started where your DHCP server specifies a DNS server that is only avaialble on that network, boot2docker will be able
+# to resolve domains while on that network. This hack "fixes" that.
+
+echo "Attempting to fix boot2docker dns issues..."
+
+[[ `boot2docker status` == "running" ]] \
+  && boot2docker ssh 'echo "nameserver 8.8.8.8" > /etc/resolv.conf' \
+  || echo "boot2docker not running, cannot fix run dns fix"

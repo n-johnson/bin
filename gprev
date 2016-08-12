@@ -1,11 +1,30 @@
 #!/bin/bash
 
+REFLOG_COUNT=${1:-20}
+
 recentBranches() {
-  git reflog | grep 'moving from' | awk -F"moving from " '{print $2}' | head -n 20 | sed -e 's/ to /\'$'\n/g' | sort | uniq
+  git reflog | grep 'moving from' | awk -F"moving from " '{print $2}' | head -n "$REFLOG_COUNT" | sed -e 's/ to /\'$'\n/g' | uniq_unsorted
+}
+
+po() {
+  # trailing -- is to prevent git from being confused by branches that have the same name as a file / folder
+  git show "$1" --pretty=format:"%Cred%h%Creset%x09%an%x09%C(yellow)%ad%Cgreen%x09%s%Creset" --color --date=format:'%Y-%m-%d' --no-patch --
+}
+
+fixedWidth25() {
+  printf "%-25s" "$1" | cut -c 1-25
+}
+
+prettyOutput() {
+  for branch in `recentBranches`; do
+    x=$(po "$branch")
+    y=$(fixedWidth25 "$branch")
+    echo "$y - $x"
+  done
 }
 
 echo "Checkout which branch?"
-recentBranches | nl
+prettyOutput | nl
 read -p "? " n
 
 switch_to=$(recentBranches | sed -n "$n"p)

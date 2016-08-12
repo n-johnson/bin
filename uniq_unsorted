@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# TODO: Optional space delimted list as flag
+
+# Uniqs a line delimited list while retaining the original order
+#   Ex:
+#     a
+#     b
+#     c
+#     a
+#     d
+#     
+#     ->
+#     a
+#     b
+#     c
+#     d
+
+awk '!x[$0]++'

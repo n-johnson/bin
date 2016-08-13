@@ -23,5 +23,10 @@ else
 fi
 
 resp=$(git push origin "$branch" 2>&1)
-
-echo "$resp" | grep '[rejected]' && { promptYes "Force push?"; git push origin "$branch" --force; } || echo "$resp"
+if [ "$?" != 0 ]; then
+  echo "$resp"
+  promptYes "Force push?"
+  git push origin "$branch" --force
+else
+  echo "$resp"
+fi

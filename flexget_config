@@ -1,0 +1,28 @@
+#!/bin/bash
+
+FLEX_HOST=$(loadPrivate flexget_host)
+exitIfError "$?" "Failed to load flexget_host" || exit 1
+
+FLEX_CONFIG_PATH=$(loadPrivate flexget_config_path)
+exitIfError "$?" "Failed to load flexget_config_path" || exit 1
+
+doReload() {
+  ssh "$FLEX_HOST" 'flexget daemon reload'
+}
+
+lastModified() {
+  ssh "$FLEX_HOST" date +%s -r "$FLEX_CONFIG_PATH"
+}
+
+lm1=$(lastModified)
+
+vim "scp://$FLEX_HOST//$FLEX_CONFIG_PATH"
+
+lm2=$(lastModified)
+
+if [[ "$lm1" == "$lm2" ]]; then
+  echo "Not modified, skipping reload"
+else
+  doReload
+fi
+

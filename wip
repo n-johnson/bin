@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# TODO: Add an optional prop to set a message on WIP_MAGIC and then in
+#       rwip, check for /^$WIP_MAGIC/ instead of == WIP_MAGIC
+
 WIP_MAGIC='wip.auto' # Also in bin/rwip
 
 gam \

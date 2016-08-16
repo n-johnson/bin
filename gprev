@@ -1,6 +1,11 @@
 #!/bin/bash
 
-REFLOG_COUNT=${1:-20}
+# TODO: Take an optional string argrument, and grep for it in branches list.
+#       If there is only a single result, automatically switch to that branch.
+#       If there are multiple results, only include those branches in the branch selection UI
+
+# Default to last 30 items in reflog
+REFLOG_COUNT=${1:-30}
 
 recentBranches() {
   git reflog | grep 'moving from' | awk -F"moving from " '{print $2}' | head -n "$REFLOG_COUNT" | sed -e 's/ to /\'$'\n/g' | uniq_unsorted
@@ -30,3 +35,4 @@ read -p "? " n
 switch_to=$(recentBranches | sed -n "$n"p)
 echo "Switching to: $switch_to"
 git checkout "$switch_to"
+

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+promptYes() {
+  echo "$1"
+  while true; do
+      read -p "Type (y/n) :" yn
+      case $yn in
+          [Yy]* ) break;;
+          [Nn]* ) exit 1;;
+          * ) echo "Please answer yes or no.";;
+      esac
+  done
+}
+
+promptYes "$1"

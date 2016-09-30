@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Starts a node.js REPL. If the current directory has REPL_SCRIPT, will use that for project specific REPL's. Otherwise will start a standard REPL.
+
+REPL_SCRIPT="repl.js"
+
+[ -f "$REPL_SCRIPT" ] \
+  && node "$REPL_SCRIPT" \
+  || node

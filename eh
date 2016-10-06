@@ -13,6 +13,7 @@ cache_age=$(echo "$cur_time - $last_mod" | bc)
 
 if [ "$cache_age" -gt "$MAX_CACHE" ]; then
   ec2-host > "$EC2_CACHE"
+  eh_refresh
 fi
 
 cat "$EC2_CACHE"

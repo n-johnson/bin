@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Used w/ tdir
+# Used w/ corresponding zsh function tdir to actually do the directory switching in parent shell
+ 
+log_file="$HOME/.tdir"
+
+last_tdir=$(tail -n 1 $log_file | awk '{print $2}') \
+  && echo "$last_tdir" \
+  || { print_error "Failed to find last directory, staying in cur dir."; echo "$PWD"; exit 1; } # echo PWD because the wrapper to this is `cd $(_ptdr)`

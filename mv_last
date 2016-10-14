@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Moves most recently downloaded file to a new temp directory
+
+FILENAME=$(ls -tr ~/Downloads | tail -n 1)
+FILEPATH=$(expandPath "~/Downloads/$FILENAME")
+
+prompt_yes "Move $FILEPATH"
+
+TDIR=$(_tdir)
+exitIfError "$?" "Failed to create temp dir" || exit 1
+
+mv "$FILEPATH" "$TDIR/$FILENAME"
+exitIfError "$?" "Failed to move file" || exit 1
+
+echo "$TDIR"

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Temp dir with historic log file to easily traverse with _ptdir
+# Used w/ corresponding zsh function tdir to actually do the directory switching in parent shell
+
+log_file="$HOME/.tdir";
+_date=$(date "+%Y_%m_%d__%H_%M_%S_%p");
+_context=$(pwd)
+_dir=$(mktemp -d -t nj) \
+  && echo -e "$_date\t$_dir\t$_context" >> "$log_file" \
+  && echo "$_dir" \
+  || { print_error "Failed to create temp dir, staying in cur dir."; echo "$PWD"; exit 1; } # echo PWD because the wrapper to this is `cd $(_ptdr)`

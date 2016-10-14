@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Adapted from Charles Duffy: http://stackoverflow.com/a/29310477/1923878
+expandPath() {
+  local path
+  local -a pathElements resultPathElements
+  IFS=':' read -r -a pathElements <<<"$1"
+  : "${pathElements[@]}"
+  for path in "${pathElements[@]}"; do
+    : "$path"
+    case $path in
+      "~+"/*)
+        path=$PWD/${path#"~+/"}
+        ;;
+      "~-"/*)
+        path=$OLDPWD/${path#"~-/"}
+        ;;
+      "~"/*)
+        path=$HOME/${path#"~/"}
+        ;;
+      "~"*)
+        if [[ $path = */* ]]; then
+          path=${HOME}/${path#*/}
+        else
+          path=$HOME
+        fi
+        ;;
+    esac
+    resultPathElements+=( "$path" )
+  done
+  local result
+  printf -v result '%s:' "${resultPathElements[@]}"
+  printf '%s\n' "${result%:}"
+}
+
+expandPath "$1"

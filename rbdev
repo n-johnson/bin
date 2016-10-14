@@ -1,0 +1,7 @@
+#!/bin/bash
+
+_g_isClean || exit 1
+
+# _g == dev then exit
+
+git rebase --committer-date-is-author-date dev

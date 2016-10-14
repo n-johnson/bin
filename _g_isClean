@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# if output=$(git status --untracked-files=no --porcelain) && [ -z "$output" ]; then
+#   exit 0
+# else
+#   exit 1
+# fi
+
+output=$(git status --untracked-files=no --porcelain) \
+  && [ -z "$output" ]

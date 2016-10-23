@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Strip trailing newline from stdin
+# Ex: sip | strip_nl
+
+perl -pe 'chomp if eof'
+

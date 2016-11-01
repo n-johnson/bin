@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Note: File should be set to be immutable (`chflags uchg mdns_kill`) after first setting root as the owner (so the file can't be made mutable without root access) - Otherwise, the script could be edited to include whatever and it would still be allowed to run as root via sudo w/o password due to the inclusion of the file in /etc/sudoers
+
+# File specified in /etc/sudoers to be allowed to run with sudo w/o a password. (aka this file itself. Explicit path just b/c of required visudo setup with the same path)
+FILE='/Users/nathan/bin/mdns_kill'
+
+if [ "$(whoami)" == "root" ]; then # File run with sudo as root, so kill mDNSResponder
+  echo "Restarting mDNSResponder"
+  pkill mDNSResponder
+else
+  echo "Running l33t privesc h4cks to gain r00t"
+  sudo "$FILE" # Still need sudo access. This file itself can be run w/ sudo w/o password, so just re-run ourselves with sudo to gain root
+fi
+

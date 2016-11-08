@@ -1,4 +1,5 @@
 \n
+	    code:             %{http_code}\n
             time_namelookup:  %{time_namelookup}\n
                time_connect:  %{time_connect}\n
             time_appconnect:  %{time_appconnect}\n

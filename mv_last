@@ -5,10 +5,21 @@
 FILENAME=$(ls -tr ~/Downloads | tail -n 1)
 FILEPATH=$(expandPath "~/Downloads/$FILENAME")
 
-prompt_yes "Move $FILEPATH"
+ARG="$1"
+# Was path provided? If so move file to that location
+if [ -n "$ARG" ]; then
+  TDIR=$(realpath "$1")
+  exitIfError "$?" "Argument provided not valid filepath" || exit 1
 
-TDIR=$(_tdir)
-exitIfError "$?" "Failed to create temp dir" || exit 1
+  [ -d "$TDIR" ]
+  exitIfError "$?" "Argument provided not valid filepath" || exit 1
+
+else
+  TDIR=$(_tdir)
+  exitIfError "$?" "Failed to create temp dir" || exit 1
+fi
+
+prompt_yes "Move $FILEPATH to $TDIR"
 
 mv "$FILEPATH" "$TDIR/$FILENAME"
 exitIfError "$?" "Failed to move file" || exit 1

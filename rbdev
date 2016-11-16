@@ -1,7 +1,11 @@
 #!/bin/bash
 
-_g_isClean || exit 1
+_g_isClean
+exitIfError "$?" "Cannot rebase, uncommited changes." || exit 1
 
-# _g == dev then exit
+if [ "$(_g)" == "dev" ]; then
+  print_error "Cannot rebase dev onto dev"
+  exit 1
+fi
 
 git rebase --committer-date-is-author-date dev

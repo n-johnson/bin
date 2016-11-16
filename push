@@ -26,7 +26,7 @@ resp=$(git push origin "$branch" 2>&1)
 if [ "$?" != 0 ]; then
   echo "$resp"
   promptYes "Force push?"
-  git push origin "$branch" --force
+  git push origin "$branch" --force-with-lease
 else
   echo "$resp"
 fi

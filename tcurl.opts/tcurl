@@ -1,25 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-C_PATH=$(dirname $(realpath "$0"))
+C_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+OPTS_PATH="$C_PATH/tcurl.opts"
 
-declare -A format_hash=([default]="format-default.txt" [raw]="format-raw-time.txt" [skip_dns]="format-raw-time-no-dns.txt")
-
-getCFilePath() {
-  local passin=${1:-'default'}
-  local file=${format_hash["$passin"]}
-
-  if [ -z "$file" ]; then
-    echo '@'"$C_PATH/$file"
-  else
-    echo '@'"format-default.txt"
-  fi
-}
-
-timedCurl() {
-  local url=$1;
-  local res_type=$2;
-
-  curl -w "$(getCFilePath $res_type)" -o /dev/null -s "$url"
-}
-
-timedCurl "$@"
+curl -w "@""$OPTS_PATH/format-default.txt" -o /dev/null -s "$1"

@@ -2,4 +2,4 @@
 
 . doi2
 
-docker run --rm=true -it ubuntu /bin/bash
+docker run --rm=true -it ubuntu:16.04 /bin/bash

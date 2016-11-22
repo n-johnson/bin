@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Use ack for searching for a file by name. Not super performant, but very simple.
+
+ack -f | ack "$1"

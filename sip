@@ -1,2 +1,3 @@
 #!/bin/bash
-wget -qO - ipv4.icanhazip.com
+
+dig +short myip.opendns.com @resolver1.opendns.com

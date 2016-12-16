@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Rebase local branch with changes on top of a remote branch that also has changes after first pulling down the remote chagnes
+
+_g_isClean
+  exitIfError "$?" "Cannot sync with origin, uncommited changes." || exit 1
+
+CURRENT_BRANCH=$(_g)
+  exitIfError "$?" "Failed to get current branch" || exit 1
+
+REMOTE="origin"
+
+git fetch $REMOTE $CURRENT_BRANCH \
+  && git rebase "$REMOTE"/"$CURRENT_BRANCH"

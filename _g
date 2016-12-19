@@ -1,4 +1,6 @@
 #!/bin/bash
+__track_usage "$(basename "$0")"
+
 ## Description: Prints current branch name
 ## Author: Nathan Johnson <.*@njohnson.me>
 ## Date: 2015-11-06

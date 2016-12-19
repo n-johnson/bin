@@ -1,4 +1,6 @@
 #!/bin/bash
+__track_usage "$(basename "$0")"
+
 # Run as: . npm_path to add the node_modules bin of the current directory to the PATH of the current shell
 
 # TODO: Check path for duplicates before appending

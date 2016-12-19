@@ -1,4 +1,6 @@
 #!/bin/bash
+__track_usage "$(basename "$0")"
+
 ## Description: Implements dig -t any since cloudflare stopped responding to type ANY queries
 ## Author: Nathan Johnson <.*@njohnson.me>
 ## Date: 2015-10-28

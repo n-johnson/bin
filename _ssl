@@ -1,7 +1,10 @@
 #!/bin/bash
+__track_usage "$(basename "$0")"
+
 ## Description: Downloads and parses a SSL certificate for a provided hostname/address.
 ## Author: Nathan Johnson <.*@njohnson.me>
 ## Date: 2015-10-26
+
 _ssl () {
 	local adr=$1
 	local _d

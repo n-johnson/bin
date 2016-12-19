@@ -1,4 +1,5 @@
 #!/bin/bash
+__track_usage "$(basename "$0")"
 
 # Simple wrapper over awk to print a specific column
 

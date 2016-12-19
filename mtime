@@ -1,3 +1,5 @@
 #!/bin/bash
+__track_usage "$(basename "$0")"
+
 perl -MTime::HiRes -e 'printf("%.0f\n",Time::HiRes::time()*1000)'
 

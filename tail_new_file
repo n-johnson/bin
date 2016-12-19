@@ -1,5 +1,6 @@
 #!/bin/bash
-#
+__track_usage "$(basename "$0")"
+
 # To be run in an empty directory. Once a file is written to the directory, this will begin tailing the file.
 
 tail_it() {

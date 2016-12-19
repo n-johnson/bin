@@ -1,8 +1,10 @@
 #!/bin/bash
+__track_usage "$(basename "$0")"
 
 # Used w/ tdir
 # Used w/ corresponding zsh function tdir to actually do the directory switching in parent shell
  
+
 log_file="$HOME/.tdir"
 
 last_tdir=$(tail -n 1 $log_file | awk '{print $2}') \

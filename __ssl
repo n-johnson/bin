@@ -1,4 +1,6 @@
 #!/bin/bash
+__track_usage "$(basename "$0")"
+
 openssl="/usr/local/opt/openssl/bin/openssl"
 _ssl () {
 	local adr=$1

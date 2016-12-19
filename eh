@@ -1,4 +1,5 @@
 #!/bin/bash
+__track_usage "$(basename "$0")"
 
 MAX_CACHE=21600 # 6 hours (sec)
 EC2_CACHE="$HOME/.ec2_host"

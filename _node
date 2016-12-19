@@ -1,4 +1,6 @@
 #!/bin/bash
 
+__track_usage "$(basename "$0")"
+
 #env node
 nvm exec 0.10.40 node "$1"

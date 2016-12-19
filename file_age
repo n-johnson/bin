@@ -1,3 +1,4 @@
 #!/bin/bash
+__track_usage "$(basename "$0")"
 
 stat -f "%Sm" -t "%s" "$1"

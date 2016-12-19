@@ -1,4 +1,5 @@
 #!/bin/bash
+__track_usage "$(basename "$0")"
 
 # Temp dir with historic log file to easily traverse with _ptdir
 # Used w/ corresponding zsh function tdir to actually do the directory switching in parent shell

@@ -1,4 +1,6 @@
 #!/bin/bash
+__track_usage "$(basename "$0")"
+
 
 # if output=$(git status --untracked-files=no --porcelain) && [ -z "$output" ]; then
 #   exit 0

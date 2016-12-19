@@ -1,4 +1,5 @@
 #!/bin/bash
+__track_usage "$(basename "$0")"
 
 # If boot2docker is started where your DHCP server specifies a DNS server that is only avaialble on that network, boot2docker will be able
 # to resolve domains while on that network. This hack "fixes" that.

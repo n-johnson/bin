@@ -1,4 +1,6 @@
 #!/bin/bash
+__track_usage "$(basename "$0")"
+
 ##
 ## gbdiff: Git Branch Diff
 ##   With pretty color!

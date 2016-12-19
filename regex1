@@ -1,2 +1,4 @@
 #!/bin/bash
+__track_usage "$(basename "$0")"
+
 gawk 'match($0,/'$1'/, ary) {print ary['${2:-'1'}']}'

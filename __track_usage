@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# __track_usage
+#   - Small script to track usage of personal bash cmds
+# Usage:
+#    __track_usage $CALLEE_NAME
+#  Where:
+#    $CALLEE_NAME is the file being executed
+#  ex:
+#    __track_usage "$(basename "$0")"
+
+CUR_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+LOG_FILE="$CUR_DIR/.usage"
+
+USAGE="$1"
+UNIXTIME="$(date +%s)"
+
+echo -e "$USAGE\t$UNIXTIME" >> "$LOG_FILE"

@@ -1,0 +1,97 @@
+#!/bin/bash
+
+# Usage:
+#    alert -t "Title" -b "Body" -d 3 -s
+#  Where:
+#     -t = Alert title
+#     -b = Alert body
+#     -d = Delay in seconds
+#     -D = Delay, using the format of timeDiff / date -v adjustment
+#     -s = (Optional) Say the alert in addition to displaying a notification
+
+# SETINGS
+SPEAK=0
+DELAY=""
+TITLE=""
+BODY=""
+
+OPTIND=1
+while getopts "st:xb:xd:xD:x" opt; do
+    case "$opt" in
+    s)  SPEAK=1
+        ;;
+    t)  TITLE="$OPTARG"
+        ;;
+    d)  DELAY="$OPTARG"
+        ;;
+    D)  DELAY=$(timeDiff "$OPTARG")
+        ;;
+    b)  BODY="$OPTARG"
+        ;;
+    esac
+done
+shift $((OPTIND-1))
+
+[ "$1" = "--" ] && shift
+
+if [ -n "$@" ]; then
+  TITLE=" "
+  BODY="$@"
+  if [ -z "$DELAY" ]; then
+    read -p "Delay (in seconds)?" DELAY
+  fi
+
+fi
+
+if [ -z "$TITLE" ]; then
+  echo "Message title not provided: -t argument is required."
+  exit 1
+fi
+
+if [ -z "$BODY" ]; then
+  echo "Message body not provided: -b argument is required."
+  exit 1
+fi
+
+if [ -z "$DELAY" ]; then
+  echo "Time delay not provided: -d argument is required."
+  exit 1
+fi
+
+isNumber() { [ "$1" -eq "$1" ] 2>/dev/null; }
+
+if ! isNumber "$DELAY"; then
+  echo "Provided delay, "$DELAY" is not a valid number";
+  exit 1
+fi
+
+speakNotification() {
+  local title="$1"
+  local body="$2"
+  local content="Alert! $title. $body."
+
+  say "$content"
+}
+
+displayNotification() {
+  local title="$1"
+  local body="$2"
+  local script='display notification "'$body'" with title "'$title'"'
+
+  osascript -e "$script"
+}
+
+doNotification() {
+  displayNotification "$TITLE" "$BODY"
+
+  if (($SPEAK == 1)); then
+    speakNotification "$TITLE" "$BODY"
+  fi
+}
+
+echo "In $DELAY seconds, will send the alert:"
+echo "$TITLE :"
+echo "$BODY"
+
+{ sleep "$DELAY"; doNotification; } &
+disown

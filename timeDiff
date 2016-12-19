@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# timeDiff
+#   - Outputs the number of seconds between now and the date parameter provided
+#   - Ex:
+#       $ timeDiff '+1M'
+#       > 60
+
+timeDiff() {
+  local now_seconds;
+  local future_seconds;
+
+  now_seconds=$(date '+%s')
+  future_seconds=$(date -v "$1" '+%s')
+    exitIfError "$?" "Invalid date option" || return 1;
+
+  echo "$future_seconds - $now_seconds" | bc
+}
+
+timeDiff "$1"

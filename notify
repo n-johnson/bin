@@ -1,0 +1,6 @@
+#!/bin/bash
+
+TEXT="$1"
+SCRIPT="display notification "'"'"${TEXT}"'"'
+
+osascript -e "$SCRIPT"

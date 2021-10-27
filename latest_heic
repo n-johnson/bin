@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -eou pipefail
+
+# -u = additional flag for -t, sorts by last access instead of last edit.
+# last access = date added, or close to it at least? man pages are not clear on that, but
+# for airdropped pictures, they are "accessed" so show up in the expected place, regardless
+# of how old the picture is.
+heic=$(ls -tur ~/Downloads/IMG_*.HEIC | tail -n 1)
+jpg="${heic/.HEIC/.jpg}"
+
+echo "Going to convert $heic to $jpg"
+
+prompt_yes "Ok?"
+magick convert "$heic" "$jpg"

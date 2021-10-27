@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  echo "Filename"
+  read fname
+else
+  fname="$@"
+fi
+
+full_fname="$fname.txt"
+
+if [ -f "$full_fname" ]; then
+  echo "File named $full_fname already exists."
+  exit 1
+fi
+
+pbpaste >> "$full_fname"

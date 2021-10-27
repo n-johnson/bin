@@ -1,5 +1,4 @@
 #!/bin/bash
-__track_usage "$(basename "$0")"
 
 promptYes() {
   while true; do
@@ -12,12 +11,14 @@ promptYes() {
   done
 }
 
-branch=$(gcurb)
+branch=$(git symbolic-ref HEAD | awk -F"/" '{print $3}')
 
 if [[ "$branch" == "dev" ]]; then
   promptYes "Confirm pushing to dev. [Y or N]"
 elif [[ "$branch" == "master" ]]; then
   promptYes "Confirm pushing to master. [Y or N]"
+elif [[ "$branch" == "main" ]]; then
+  promptYes "Confirm pushing to main. [Y or N]"
 else
   echo "Pushing to origin $branch..."
   sleep 0.5 # Small amount of time to cancel with ^C 

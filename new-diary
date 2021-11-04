@@ -1,0 +1,32 @@
+#!/bin/bash
+
+DATE=$(date +%F)
+FILE=~/diary/"$DATE.txt"
+
+setupNewPage() {
+	echo "Setting up new page"
+	cat > $FILE <<- EOM
+	todo
+
+	done
+
+	primary focus today
+	EOM
+}
+
+commitPreviousDay() {
+	echo "File created first of the day, commiting"
+	cd ~/diary
+	git add .
+	git commit -m "$DATE"
+}
+
+if ! [ -f "$FILE" ]; then
+	commitPreviousDay
+	setupNewPage
+fi
+
+# First open a sublime instance to the folder, to have previous history. Then open the file, 
+# which will end up being opened in the new sublime window, regardless of other open windows.
+subl ~/diary
+subl "$FILE"

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+WIP_MAGIC='wip.auto' # Also in bin/wip
+
+lastCommitMsg() {
+  git log --pretty=format:'%s' | head -n 1
+}
+
+isLastWIP() {
+  lastMsg=$(lastCommitMsg)
+
+  [[ "$lastMsg" == "$WIP_MAGIC" ]]
+}
+
+isLastWIP

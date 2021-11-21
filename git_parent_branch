@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# This whole thread: https://stackoverflow.com/questions/3161204/how-to-find-the-nearest-parent-of-a-git-branch/56673640#56673640
+# The only solution that seems to reliably work for all of my workflows I tested it with.
+
+git log --decorate \
+  | grep 'commit' \
+  | grep 'origin/' \
+  | head -n 2 \
+  | tail -n 1 \
+  | awk '{ print $2 }' \
+  | tr -d "\n"

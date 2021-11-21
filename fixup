@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -eou pipefail
+
+# Get the lastest commits, select which one needs to be fixed, commit current changes with that commit marked.
+COMMIT_TO_FIX="$(git log -n 50 --pretty=format:'%h %s' --no-merges | fzf | cut -c -7)"
+
+echo "Going to fix: $COMMIT_TO_FIX"
+
+if is_last_commit_wip; then
+  echo "Should use last wip commit as fixes?"
+
+  prompt_yes \
+    && git commit --amend --fixup "$COMMIT_TO_FIX" \
+    || git commit --fixup "$COMMIT_TO_FIX"
+else
+  git commit --fixup "$COMMIT_TO_FIX"
+fi
+
+PARENT_BRANCH="$(git_parent_branch)"
+
+echo "$PARENT_BRANCH"
+
+if [ -z "$PARENT_BRANCH" ]; then
+  echo "Failed to detect parent branch"
+  exit 0;
+fi
+
+COMMIT_DETAILS="$(git name-rev $PARENT_BRANCH)"
+
+echo "Going to rebase onto: $COMMIT_DETAILS"
+prompt_yes \
+  && git rebase --committer-date-is-author-date -i --autosquash "$PARENT_BRANCH" \
+  || {
+    echo "Skipping automatic rebase, set the proper parent and run:"
+    echo "git rebase --committer-date-is-author-date -i --autosquash X"
+  };

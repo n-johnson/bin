@@ -19,6 +19,7 @@ commitPreviousDay() {
 	cd ~/diary
 	git add .
 	git commit -m "$DATE"
+	git push
 }
 
 if ! [ -f "$FILE" ]; then

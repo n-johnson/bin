@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -eou pipefail
+
+FILEPATH=$(_l)
+
+FILE_SIZE=$(gstat --printf="%s" "$FILEPATH")
+FILE_SIZE=$(echo "${FILE_SIZE}" | awk '{ split( "B KB MB GB TB PB" , v ); s=1; while( $1>1024 ){ $1/=1024; s++ } printf "%.2f %s", $1, v[s] }')
+
+DL_LOCATION=$(get_dl_url_from_xattr "$FILEPATH")
+
+# Allow-list download locations for skipping confirmation prompt
+if [[ "$DL_LOCATION" == "https://dashboard.m1.com/" ]]; then
+    echo "Copying $FILEPATH ($FILE_SIZE)"
+    pbcopy < "$FILEPATH"
+else
+    prompt_yes "Copy $FILEPATH ($FILE_SIZE)"
+    pbcopy < "$FILEPATH"
+fi
+

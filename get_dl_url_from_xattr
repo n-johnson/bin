@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -eou pipefail
+
+FILEPATH="$1"
+
+
+get_attribute_or_empty() {
+    local path="$1"
+    local attribute_value=$(xattr -x -p com.apple.metadata:kMDItemWhereFroms "$path" 2>/dev/null || true)
+
+    if [[ -z "$attribute_value" ]]; then
+        echo ""
+    else
+        echo "$attribute_value"
+    fi
+}
+
+ITEM_WHERE_FROMS="$(get_attribute_or_empty "$FILEPATH")"
+
+if [[ -z "$ITEM_WHERE_FROMS" ]]; then
+    echo ""
+else
+   echo "$ITEM_WHERE_FROMS" | xxd -r -p | plutil -convert json -o - - | jq -r '.[0]'
+fi
+

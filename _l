@@ -1,0 +1,4 @@
+#!/bin/bash
+
+FILENAME=$(ls -tr ~/Downloads | tail -n 1)
+expandPath "~/Downloads/$FILENAME"

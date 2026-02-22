@@ -1,0 +1,158 @@
+#!/bin/bash
+
+set -euo pipefail
+
+usage() {
+  cat <<EOF
+Usage:
+  $(basename "$0") <exit-node-ip>
+
+Example:
+  $(basename "$0") 100.85.34.142
+
+Description:
+  Launches tailsocks using the provided exit node IP,
+  waits until the SOCKS proxy is fully usable,
+  then opens Firefox with the SecureProxy profile.
+
+Arguments:
+  exit-node-ip    Required. The Tailscale exit node IP (e.g. 100.x.x.x).
+EOF
+}
+
+# Require exactly one argument
+if [[ $# -ne 1 ]]; then
+  echo "ERROR: exit node IP is required."
+  echo
+  usage
+  exit 1
+fi
+
+EXIT_NODE="$1"
+
+STATE_DIR="$HOME/.config/tsnet-state"
+TAILSOCKS_BIN="$HOME/go/bin/tailsocks"
+
+FIREFOX_BIN="/Applications/Firefox.app/Contents/MacOS/firefox"
+FIREFOX_PROFILE="SecureProxy"
+
+SOCKS_HOST="127.0.0.1"
+SOCKS_PORT="5040"
+SOCKS_ADDR="${SOCKS_HOST}:${SOCKS_PORT}"
+
+ts_pid=""
+ff_pid=""
+
+wait_for_port_listen() {
+  local host="$1"
+  local port="$2"
+  local timeout_s="${3:-15}"
+  local deadline=$(( $(date +%s) + timeout_s ))
+
+  echo "Waiting for SOCKS proxy to listen on ${host}:${port} (timeout ${timeout_s}s)..."
+
+  while true; do
+    if nc -z -w 1 "${host}" "${port}" >/dev/null 2>&1; then
+      echo "SOCKS proxy is listening on ${host}:${port}"
+      return 0
+    fi
+
+    if (( $(date +%s) >= deadline )); then
+      echo "ERROR: Timed out waiting for SOCKS proxy on ${host}:${port}" >&2
+      return 1
+    fi
+
+    sleep 0.2
+  done
+}
+
+wait_for_socks_ready() {
+  local host="$1"
+  local port="$2"
+
+  local test_url="https://icanhazip.com"
+  local proxy="socks5h://${host}:${port}"
+  local ready_timeout_s="20"
+  local deadline=$(( $(date +%s) + ready_timeout_s ))
+
+  wait_for_port_listen "${host}" "${port}"
+
+  echo "Waiting for SOCKS proxy to be usable via curl through ${proxy}..."
+  echo "Test URL: ${test_url}"
+
+  while true; do
+    out="$(
+      curl -fsS \
+        --proxy "${proxy}" \
+        --max-time 2 \
+        "${test_url}" 2>/dev/null || true
+    )"
+
+    if [[ -n "${out}" ]]; then
+      if echo "${out}" | grep -Eq '^([0-9]{1,3}\.){3}[0-9]{1,3}$|^[0-9a-fA-F:]+$'; then
+        echo "SOCKS proxy is usable. Probe response: ${out}"
+        return 0
+      fi
+      echo "SOCKS proxy request succeeded (non-IP response): ${out}"
+      return 0
+    fi
+
+    if (( $(date +%s) >= deadline )); then
+      echo "ERROR: Timed out waiting for SOCKS proxy to be usable via ${proxy}" >&2
+      return 1
+    fi
+
+    sleep 0.3
+  done
+}
+
+cleanup() {
+  set +e
+
+  if [[ -n "${ff_pid}" ]] && kill -0 "${ff_pid}" 2>/dev/null; then
+    echo "Stopping Firefox (PID ${ff_pid})..."
+    kill "${ff_pid}" 2>/dev/null || true
+    wait "${ff_pid}" 2>/dev/null || true
+  fi
+
+  if [[ -n "${ts_pid}" ]] && kill -0 "${ts_pid}" 2>/dev/null; then
+    echo "Stopping tailsocks (PID ${ts_pid})..."
+    kill "${ts_pid}" 2>/dev/null || true
+    wait "${ts_pid}" 2>/dev/null || true
+  fi
+}
+trap cleanup EXIT INT TERM
+
+echo "Starting tailsocks using exit node ${EXIT_NODE}..."
+"${TAILSOCKS_BIN}" \
+    --ephemeral=false \
+    --exit-node="${EXIT_NODE}" \
+    --state-dir="${STATE_DIR}" \
+    --socks-addr="${SOCKS_ADDR}" \
+    &
+ts_pid=$!
+echo "tailsocks started with PID ${ts_pid}"
+
+wait_for_socks_ready "${SOCKS_HOST}" "${SOCKS_PORT}"
+
+echo "Starting Firefox profile '${FIREFOX_PROFILE}'..."
+"${FIREFOX_BIN}" \
+    -P "${FIREFOX_PROFILE}" \
+    &
+ff_pid=$!
+echo "Firefox started with PID ${ff_pid}"
+
+sleep 1
+
+osascript -e '
+tell application "System Events"
+    if exists (process "Firefox") then
+        tell process "Firefox"
+            set frontmost to true
+        end tell
+    end if
+end tell
+' || true
+
+wait "${ff_pid}"
+echo "Firefox has been closed."

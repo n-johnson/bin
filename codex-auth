@@ -1,0 +1,181 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+codex_home="${CODEX_HOME:-$HOME/.codex}"
+auth_file="$codex_home/auth.json"
+accounts_dir="$codex_home/accounts"
+backups_dir="$codex_home/backups"
+
+mkdir -p "$accounts_dir" "$backups_dir"
+
+usage() {
+  cat <<'EOF'
+Usage:
+  codex-auth save <name>      Save current auth.json as <name>.json
+  codex-auth switch <name>    Switch to a saved account
+  codex-auth next             Switch to the next saved account
+  codex-auth list             List saved accounts
+  codex-auth current          Show which saved account matches current auth
+  codex-auth delete <name>    Delete a saved account
+  codex-auth help             Show this help
+EOF
+}
+
+hash_file() {
+  sha256sum "$1" | awk '{print $1}'
+}
+
+reload_vscode_prompt() {
+  if ! command -v code >/dev/null 2>&1; then
+    return 0
+  fi
+
+  printf "Reload VS Code window now? [y/N] "
+  read -r ans
+
+  case "$ans" in
+    y|Y|yes|YES)
+      code --command workbench.action.reloadWindow >/dev/null 2>&1 || \
+        echo "Run manually: Command Palette -> Reload Window"
+      ;;
+  esac
+}
+
+list_accounts() {
+  local f found=0 name
+  for f in "$accounts_dir"/*.json; do
+    [ -e "$f" ] || continue
+    name="$(basename "$f" .json)"
+    found=1
+    printf '%s\n' "$name"
+  done
+
+  [ "$found" -eq 1 ] || return 1
+}
+
+current_account() {
+  [ -f "$auth_file" ] || return 1
+
+  local live_hash f
+  live_hash="$(hash_file "$auth_file")"
+
+  for f in "$accounts_dir"/*.json; do
+    [ -e "$f" ] || continue
+    if [ "$(hash_file "$f")" = "$live_hash" ]; then
+      basename "$f" .json
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+switch_account() {
+  local name="$1"
+
+  [ -f "$accounts_dir/$name.json" ] || {
+    echo "Account not found: $name" >&2
+    return 1
+  }
+
+  if [ -f "$auth_file" ]; then
+    local backup="$backups_dir/_last-$(date +%Y%m%d-%H%M%S).json"
+    cp "$auth_file" "$backup"
+    chmod 600 "$backup" 2>/dev/null || true
+    echo "Backed up previous auth -> $(basename "$backup")"
+  fi
+
+  local tmp
+  tmp="$(mktemp "$codex_home/auth.json.tmp.XXXXXX")"
+  cp "$accounts_dir/$name.json" "$tmp"
+  chmod 600 "$tmp" 2>/dev/null || true
+  mv "$tmp" "$auth_file"
+
+  echo "Switched to: $name"
+  echo "Restart Codex CLI or reload VS Code if needed"
+  reload_vscode_prompt
+}
+
+next_account() {
+  local accounts=()
+  local line
+
+  # Populate array without mapfile
+  while IFS= read -r line; do
+    accounts+=("$line")
+  done < <(list_accounts || true)
+
+  local count="${#accounts[@]}"
+  [ "$count" -gt 0 ] || {
+    echo "No saved accounts." >&2
+    return 1
+  }
+
+  local current
+  if current="$(current_account)"; then
+    for i in "${!accounts[@]}"; do
+      if [ "${accounts[$i]}" = "$current" ]; then
+        local next_index=$(( (i + 1) % count ))
+        switch_account "${accounts[$next_index]}"
+        return 0
+      fi
+    done
+  fi
+
+  # fallback: first account
+  switch_account "${accounts[0]}"
+}
+
+cmd="${1:-help}"
+name="${2:-}"
+
+case "$cmd" in
+  save)
+    [ -z "$name" ] && usage && exit 1
+    [ ! -f "$auth_file" ] && echo "No active auth file." >&2 && exit 1
+
+    cp "$auth_file" "$accounts_dir/$name.json"
+    chmod 600 "$accounts_dir/$name.json" 2>/dev/null || true
+    echo "Saved -> $name"
+    ;;
+
+  switch)
+    [ -z "$name" ] && usage && exit 1
+    switch_account "$name"
+    ;;
+
+  next)
+    next_account
+    ;;
+
+  list)
+    list_accounts || echo "No saved accounts"
+    ;;
+
+  current)
+    current_account || {
+      if [ ! -f "$auth_file" ]; then
+        echo "No active auth."
+      else
+        echo "Unknown (not in saved list)"
+      fi
+      exit 1
+    }
+    ;;
+
+  delete)
+    [ -z "$name" ] && usage && exit 1
+    rm -f "$accounts_dir/$name.json"
+    echo "Deleted -> $name"
+    ;;
+
+  help|-h|--help)
+    usage
+    ;;
+
+  *)
+    echo "Unknown command: $cmd" >&2
+    usage
+    exit 1
+    ;;
+esac

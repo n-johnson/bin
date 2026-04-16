@@ -1,0 +1,22 @@
+#!/bin/bash
+
+STATE_FILE="$HOME/.pdir"
+
+if [[ ! -f "$STATE_FILE" ]]; then
+  print_error "No project path is set. Run: pset [path]"
+  exit 1
+fi
+
+target="$(<"$STATE_FILE")"
+
+if [[ -z "$target" ]]; then
+  print_error "Saved project path is empty. Run: pset [path]"
+  exit 1
+fi
+
+if [[ ! -d "$target" ]]; then
+  print_error "Saved project path does not exist: $target"
+  exit 1
+fi
+
+printf '%s\n' "$target"

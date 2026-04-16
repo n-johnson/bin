@@ -43,6 +43,15 @@ SOCKS_ADDR="${SOCKS_HOST}:${SOCKS_PORT}"
 ts_pid=""
 ff_pid=""
 
+find_existing_firefox_pid() {
+  ps -axww -o pid= -o command= | while read -r pid cmd; do
+    if [[ "${cmd}" == *"${FIREFOX_BIN}"* ]] && [[ "${cmd}" == *"-P ${FIREFOX_PROFILE}"* ]]; then
+      echo "${pid}"
+      return 0
+    fi
+  done
+}
+
 wait_for_port_listen() {
   local host="$1"
   local port="$2"
@@ -135,16 +144,22 @@ echo "tailsocks started with PID ${ts_pid}"
 
 wait_for_socks_ready "${SOCKS_HOST}" "${SOCKS_PORT}"
 
-echo "Starting Firefox profile '${FIREFOX_PROFILE}'..."
-"${FIREFOX_BIN}" \
-    -P "${FIREFOX_PROFILE}" \
-    &
-ff_pid=$!
-echo "Firefox started with PID ${ff_pid}"
 
-sleep 1
+maybe_existing_ff_pid="$(find_existing_firefox_pid || true)"
+if [[ -n "${maybe_existing_ff_pid}" ]]; then
+  ff_pid="${maybe_existing_ff_pid}"
+  echo "Firefox is already running with profile '${FIREFOX_PROFILE}' (PID ${ff_pid})"
+else
+  echo "Starting Firefox profile '${FIREFOX_PROFILE}'..."
+  "${FIREFOX_BIN}" \
+      -P "${FIREFOX_PROFILE}" \
+      &
+  ff_pid=$!
+  echo "Firefox started with PID ${ff_pid}"
 
-osascript -e '
+  sleep 1
+
+  osascript -e '
 tell application "System Events"
     if exists (process "Firefox") then
         tell process "Firefox"
@@ -153,6 +168,14 @@ tell application "System Events"
     end if
 end tell
 ' || true
+fi
 
-wait "${ff_pid}"
+if jobs -p | grep -qx "${ff_pid}"; then
+  wait "${ff_pid}"
+else
+  while kill -0 "${ff_pid}" 2>/dev/null; do
+    sleep 10
+  done
+fi
+
 echo "Firefox has been closed."

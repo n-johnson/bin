@@ -1,0 +1,53 @@
+#!/bin/bash
+
+set -eou pipefail
+
+CMD="${1:-default_fallback}"
+CMD_ARGS="${2:-unknown}"
+
+
+lookup() {
+
+    local file_path=""
+    file_path=$(_l)
+    local file_size=""
+    file_size=$(gstat --printf="%s" "$file_path")
+    file_size=$(echo "${file_size}" | awk '{ split( "B KB MB GB TB PB" , v ); s=1; while( $1>1024 ){ $1/=1024; s++ } printf "%.2f %s", $1, v[s] }')
+    
+    local title="Copy $file_path"
+    local subtitle="Size: $file_size"
+
+    local output=""
+    output=$( jq -n \
+                  --arg title "$title" \
+                  --arg subtitle "$subtitle" \
+                  --arg fp "$file_path" \
+                  '{"items": [
+                        {"title": $title, "subtitle": $subtitle, "arg": $fp }
+                    ]}' )
+
+
+    echo "$output"
+}
+
+run() {
+    local file_path="$1"
+    pbcopy < "$file_path"
+}
+
+
+case "$CMD" in
+
+  lookup)
+    lookup
+    ;;
+
+  run)
+    run "$CMD_ARGS"
+    ;;
+
+  *)
+    echo "Unknown build.sh command: '$CMD', exiting" >&2
+    exit 1
+    ;;
+esac

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+FILE_NAME=$(ls -tr ~/Downloads | tail -n 1)
+FILE_PATH=$(expandPath "~/Downloads/$FILE_NAME")
+
+FILE_SIZE=$(gstat --printf="%s" $FILE_PATH)
+
+if [ "$FILE_SIZE" -gt "2097152" ]; then
+  echo "File greater than 2mb, not copying. TODO prompt for confirmation instead"
+  exit 1
+fi
+
+pbcopy < "$FILE_PATH"
